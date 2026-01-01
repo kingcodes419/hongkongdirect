@@ -1,0 +1,1071 @@
+Here is the fixed code. I have kept **everything** (all your products and logic are still there).
+
+**What I fixed to make it look good on phones:**
+1.  ** The Header:** On a phone, there isn't enough room to put the Title, Search, and Buttons all in one line. I changed it to **stack vertically** on phones and stay in a line on computers.
+2.  **Input Fields:** I made the Search bar and Category selector **full width** on mobile so they are easier to tap.
+3.  **Spacing:** I increased the top padding on the product grid so the taller mobile header doesn't cover the first row of products.
+4.  **The Modal (Popup):** I added a scroll bar to the popup window. On small phones, product details + comments often get cut off; now you can scroll inside the popup.
+
+Here is your complete, mobile-responsive file:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>香港代发货 – Products</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Animate.css -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<!-- AOS -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white font-sans">
+  <style>
+/* ===== GLOBAL ===== */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Sans-serif';
+  overflow-x: hidden;
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #1f2937; 
+}
+::-webkit-scrollbar-thumb {
+  background: #10b981; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #059669; 
+}
+
+/* ===== HERO SECTION ===== */
+section.relative {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh; 
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  section.relative {
+    min-height: 100vh;
+    padding: 4rem 2rem;
+  }
+}
+
+/* ===== PRODUCT CARDS ===== */
+div[data-aos] {
+  margin-bottom: 1.5rem;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+div[data-aos]:hover {
+  transform: translateY(-0.25rem);
+  box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.3);
+}
+
+img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+</style>
+
+
+<!-- HEADER -->
+<!-- FIXED: Changed flex-row to flex-col for mobile so items stack nicely -->
+<header class="fixed w-full bg-gray-900 z-50 shadow-lg border-b border-gray-800">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center py-4 px-4 gap-4">
+    
+    <!-- Title -->
+    <h1 class="text-2xl font-bold animate__animated animate__fadeInLeft text-center md:text-left">🇭🇰 香港代发货</h1>
+    
+    <!-- Controls Container -->
+    <div class="flex flex-col md:flex-row gap-3 items-center w-full md:w-auto">
+      
+      <!-- Search (Full width on mobile) -->
+      <div class="relative w-full md:w-64">
+        <input type="text" id="search" placeholder="Search products..." class="px-4 py-2 rounded-lg bg-gray-800 text-white w-full focus:outline-none focus:ring-2 focus:ring-green-500 transition border border-gray-700" oninput="filterProducts()">
+        <span class="absolute right-3 top-2.5 text-gray-400 text-lg">🔍</span>
+      </div>
+      
+      <!-- Category dropdown (Full width on mobile) -->
+      <select id="categorySelect" class="w-full md:w-auto px-4 py-2 rounded-lg bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500 transition border border-gray-700 cursor-pointer">
+        <option value="All">All Categories</option>
+      </select>
+      
+      <!-- WhatsApp Button (Full width on mobile) -->
+      <a href="https://wa.me/16262067150" target="_blank" class="w-full md:w-auto bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 shadow-lg">
+        <span class="text-xl">💬</span> WhatsApp
+      </a>
+    </div>
+
+  </div>
+</header>
+
+<!-- PRODUCTS GRID -->
+<!-- FIXED: Increased top padding (pt-64) on mobile so the header doesn't cover products -->
+<section id="product-grid" class="max-w-7xl mx-auto px-4 sm:px-6 pt-64 pb-12 md:pt-32 md:pb-32 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+<!-- JS will populate products here -->
+</section>
+
+<!-- MODAL -->
+<!-- FIXED: Added max-height and overflow-y-auto so you can scroll the modal on small screens -->
+<div id="product-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden backdrop-blur-sm p-4">
+  <div class="bg-gray-800 rounded-xl w-full max-w-4xl p-6 relative animate__animated animate__zoomIn border border-gray-700 max-h-[90vh] overflow-y-auto">
+    
+    <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-3xl font-bold z-10 bg-gray-900 rounded-full w-10 h-10 flex items-center justify-center transition">&times;</button>
+    
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-gray-900 py-8 text-center text-gray-400 mt-auto border-t border-gray-800">
+  <div class="px-4">
+    <p class="font-bold text-white mb-2">🇭🇰 香港代发货 – Hong Kong</p>
+    <p class="text-sm">All sales confirmed directly via WhatsApp to avoid scams.</p>
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<script>
+AOS.init({ duration: 800, once: true });
+
+// FULL PRODUCT DATA WITH GOOGLE IMAGE FIELDS
+const data = {
+"categories": [
+{
+"name": "Electronics & Gadgets",
+"products": [
+  // ===== ADDITIONAL TECH PRODUCTS (BLOCK 5) =====
+{"name":"MacBook Pro 16-inch M2","price":2499,"description":"High-end Apple workstation.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"MacBook Air 13-inch M1","price":899,"description":"Thin and silent Apple laptop.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"iPad 10th Gen","price":449,"description":"Colorful everyday Apple tablet.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"iPad Pro 11-inch","price":799,"description":"Pro tablet with M2 chip.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+
+{"name":"Beats Studio Pro","price":349,"description":"High-quality over-ear headphones.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+{"name":"Sony WF-1000XM5","price":299,"description":"Top-tier ANC earbuds.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+
+{"name":"Logitech MX Keys","price":119,"description":"Premium productivity keyboard.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"Logitech MX Anywhere 3","price":79,"description":"Portable wireless mouse.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+
+{"name":"HyperX QuadCast Mic","price":139,"description":"RGB condenser microphone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+{"name":"Rode VideoMic Go","price":99,"description":"On-camera shotgun mic.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+
+{"name":"ASUS ROG Gaming Laptop","price":1599,"description":"High-performance gaming laptop.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"Alienware 27-inch Gaming Monitor","price":699,"description":"High refresh-rate display.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+
+{"name":"RGB Desk Lamp","price":59,"description":"Aesthetic desk lighting.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+{"name":"Wireless Charging Desk Pad","price":89,"description":"Minimalist charging mat.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+  // ===== ADDITIONAL TECH PRODUCTS (BLOCK 4) =====
+{"name":"iPhone 11 Pro","price":549,"description":"Triple-camera Apple smartphone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLQtFrVdMn0sB-VgUfWXY_cKSUmzdzaoZDS7vyyE_PMj6C4JzEHIBy8Xw"},
+{"name":"iPhone XS Max","price":479,"description":"Premium OLED Apple phone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLQtFrVdMn0sB-VgUfWXY_cKSUmzdzaoZDS7vyyE_PMj6C4JzEHIBy8Xw"},
+{"name":"Apple Watch Series 8","price":349,"description":"Advanced health tracking watch.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+{"name":"Apple Watch Series 7","price":299,"description":"Large display smartwatch.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+{"name":"Apple AirTag","price":29,"description":"Bluetooth item tracker.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+{"name":"Apple Magic Mouse","price":79,"description":"Multi-touch wireless mouse.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+{"name":"Apple Magic Keyboard","price":99,"description":"Slim wireless keyboard.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+
+{"name":"Samsung Galaxy S21","price":599,"description":"Flagship Samsung smartphone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+{"name":"Samsung Galaxy Note 20 Ultra","price":749,"description":"Large display with S-Pen.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+{"name":"Samsung Galaxy Z Flip 5","price":999,"description":"Compact foldable phone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+
+{"name":"Xiaomi Redmi Note 13","price":249,"description":"Budget Android smartphone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+{"name":"Infinix Zero Ultra","price":399,"description":"High refresh-rate Android phone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+
+{"name":"Harman Kardon Onyx Studio 7","price":249,"description":"Premium aesthetic speaker.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"},
+{"name":"Sony SRS-XG300","price":299,"description":"Party Bluetooth speaker.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"}
+,
+{"name":"Beats Solo Pro","price":249,"description":"On-ear noise-cancelling headphones.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+
+{"name":"Razer Seiren X","price":99,"description":"Compact USB streaming mic.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+{"name":"HyperX QuadCast S","price":139,"description":"RGB USB condenser microphone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+// ===== ADDITIONAL TECH PRODUCTS (BLOCK 2) =====
+{"name":"iPhone 12","price":599,"description":"Apple phone with A14 Bionic chip.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLQtFrVdMn0sB-VgUfWXY_cKSUmzdzaoZDS7vyyE_PMj6C4JzEHIBy8Xw"},
+{"name":"iPhone XR","price":399,"description":"Affordable Apple smartphone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLQtFrVdMn0sB-VgUfWXY_cKSUmzdzaoZDS7vyyE_PMj6C4JzEHIBy8Xw"},
+{"name":"Apple Watch Ultra","price":799,"description":"Rugged smartwatch for adventure.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+{"name":"Apple Watch SE","price":279,"description":"Affordable Apple smartwatch.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+{"name":"MagSafe Wireless Charger","price":39,"description":"Fast Apple wireless charger.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+{"name":"Apple TV 4K","price":179,"description":"Streaming device with Dolby Vision.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+
+{"name":"Samsung Galaxy Tab S9","price":799,"description":"Premium Android tablet.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+{"name":"Samsung Galaxy Watch 6","price":349,"description":"Smartwatch with health tracking.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+{"name":"Samsung Galaxy Buds FE","price":99,"description":"Budget wireless earbuds.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+
+{"name":"Google Pixel Tablet","price":499,"description":"Tablet with smart home hub.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+{"name":"OnePlus Buds Pro","price":149,"description":"Premium Android earbuds.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+
+{"name":"Anker Soundcore Boom","price":129,"description":"Outdoor Bluetooth speaker.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"},
+{"name":"Bose SoundLink Flex","price":149,"description":"Portable premium speaker.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"},
+{"name":"Sony WH-1000XM4","price":299,"description":"Noise-cancelling headphones.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+
+{"name":"Blue Snowball Microphone","price":69,"description":"USB condenser mic.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+{"name":"FIFINE USB Mic","price":49,"description":"Budget creator microphone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+// ===== ADDITIONAL TECH PRODUCTS (BLOCK 1) =====
+{"name":"iPhone 15 Pro Max","price":1199,"description":"Apple flagship with titanium body.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLQtFrVdMn0sB-VgUfWXY_cKSUmzdzaoZDS7vyyE_PMj6C4JzEHIBy8Xw"},
+{"name":"iPhone 14 Pro","price":899,"description":"Dynamic Island with Pro camera system.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLQtFrVdMn0sB-VgUfWXY_cKSUmzdzaoZDS7vyyE_PMj6C4JzEHIBy8Xw"},
+{"name":"iPhone 13","price":699,"description":"Reliable Apple smartphone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLQtFrVdMn0sB-VgUfWXY_cKSUmzdzaoZDS7vyyE_PMj6C4JzEHIBy8Xw"},
+{"name":"iPhone SE 2022","price":429,"description":"Compact Apple phone with A15 chip.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLQtFrVdMn0sB-VgUfWXY_cKSUmzdzaoZDS7vyyE_PMj6C4JzEHIBy8Xw"},
+
+{"name":"MacBook Pro M3","price":1999,"description":"High-performance Apple laptop.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"MacBook Pro M1","price":1299,"description":"Pro-grade Apple laptop.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"Mac Mini M2","price":699,"description":"Compact Apple desktop powerhouse.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"iMac 24-inch","price":1499,"description":"All-in-one Apple desktop.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+
+{"name":"iPad Mini 6","price":499,"description":"Small powerful Apple tablet.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"iPad Air M1","price":599,"description":"Lightweight Apple tablet.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"Apple Pencil 2","price":129,"description":"Precision stylus for iPad.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+{"name":"Magic Keyboard iPad","price":299,"description":"Apple premium keyboard case.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+
+{"name":"AirPods Pro 2","price":249,"description":"ANC wireless earbuds.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+{"name":"AirPods Max","price":549,"description":"Over-ear Apple headphones.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+{"name":"Beats Studio Buds","price":149,"description":"Bass-heavy wireless earbuds.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+
+{"name":"Samsung Galaxy S24 Ultra","price":1199,"description":"Top-tier Android flagship.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+{"name":"Samsung Galaxy Z Fold 5","price":1799,"description":"Foldable productivity phone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+{"name":"Samsung Galaxy A54","price":449,"description":"Mid-range Android phone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+
+{"name":"Google Pixel 7 Pro","price":799,"description":"AI-powered Android phone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+{"name":"Nothing Phone (2)","price":699,"description":"Minimalist transparent phone.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+
+{"name":"JBL Charge 5 Speaker","price":179,"description":"Portable waterproof speaker.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"},
+{"name":"JBL Flip 6","price":129,"description":"Compact Bluetooth speaker.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"},
+{"name":"Marshall Emberton","price":149,"description":"Aesthetic vintage speaker.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"},
+{"name":"Sony SRS-XB43","price":249,"description":"Extra bass party speaker.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"},
+
+{"name":"PlayStation DualSense Controller","price":69,"description":"Haptic feedback controller.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"Xbox Series X Controller","price":65,"description":"Wireless gaming controller.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name":"RGB Gaming Headset","price":89,"description":"Surround sound headset.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3Ay"},
+{"name": "iPhone 15 Pro", "price": 999, "description": "Latest Apple smartphone with A17 chip and ProMotion display.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLQtFrVdMn0sB-VgUfWXY_cKSUmzdzaoZDS7vyyE_PMj6C4JzEHIBy8Xw"},
+{"name": "Samsung Galaxy S23", "price": 899, "description": "High-end Android phone with top camera performance.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+{"name": "MacBook Air M2", "price": 1199, "description": "Lightweight laptop with long battery life and M2 chip.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name": "Sony WH-1000XM5 Headphones", "price": 349, "description": "Noise-cancelling over-ear headphones.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3AyxxN5WGtd51Wl15azEINlkTSQ"},
+{"name": "Apple Watch Series 9", "price": 399, "description": "Smartwatch with health monitoring and fitness tracking.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+{"name": "DJI Mini 4 Drone", "price": 599, "description": "Compact drone with 4K camera.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"},
+{"name": "Amazon Echo Dot (5th Gen)", "price": 49, "description": "Smart speaker with Alexa voice control.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3AyxxN5WGtd51Wl15azEINlkTSQ"},
+{"name": "GoPro Hero 12", "price": 399, "description": "Action camera for adventure and sports filming.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"},
+{"name": "Kindle Paperwhite", "price": 129, "description": "E-reader with built-in light and waterproof design.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3AyxxN5WGtd51Wl15azEINlkTSQ"},
+// 10 NEW
+{"name": "iPad Pro 12.9\"", "price": 1099, "description": "Ultimate tablet experience with M2 chip.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name": "Logitech MX Master 3S", "price": 99, "description": "Precision wireless mouse for productivity.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3AyxxN5WGtd51Wl15azEINlkTSQ"},
+{"name": "Keychron K2 Mechanical Keyboard", "price": 85, "description": "Wireless mechanical keyboard for Mac and Windows.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name": "Anker PowerCore 20K", "price": 50, "description": "High-capacity portable charger.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLQtFrVdMn0sB-VgUfWXY_cKSUmzdzaoZDS7vyyE_PMj6C4JzEHIBy8Xw"},
+{"name": "Meta Quest 3", "price": 499, "description": "Advanced mixed reality VR headset.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxOTQT8zSM7xzXDlUG08Chr4xNxqXYTFM8iooWWfxYZ5qeOUPNEA"},
+{"name": "LG 27\" 4K Monitor", "price": 350, "description": "UHD IPS Display with HDR.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name": "Sonos Era 100", "price": 249, "description": "Smart speaker with rich stereo sound.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3AyxxN5WGtd51Wl15azEINlkTSQ"},
+{"name": "Fujifilm X100V", "price": 1399, "description": "Premium compact digital camera.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"},
+{"name": "Google Pixel 8", "price": 699, "description": "Smart phone with advanced AI camera.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRzKiPpUSrRBWL2YA4lNywxZ7K86u5ZdmmDT7IsJAHqpbz9Kcur"},
+{"name": "TP-Link WiFi 6 Router", "price": 120, "description": "High speed AX3000 dual band router.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_J2R1cet3g9PaWx3Nt1PG8YstnIUWu62PGQ_OwioPvfa-7nUi4SFLz0RwY4pnSEykbiR3AyxxN5WGtd51Wl15azEINlkTSQ"}
+]
+},
+{
+"name": "Fashion & Apparel",
+"products": [
+  // ===== FASHION & APPAREL – BLOCK 4 =====
+{"name":"Oakley Polarized Sunglasses","price":129,"description":"Sporty polarized shades.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshl8h4H4HgP9S8S3JfFf9x7MxP8d8R2f9uW8"},
+{"name":"Gucci Leather Belt","price":399,"description":"Luxury designer belt.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshl8h4H4HgP9S8S3JfFf9x7MxP8d8R2f9uW8"},
+{"name":"Prada Belt Bag","price":499,"description":"Premium leather waist bag.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshl8h4H4HgP9S8S3JfFf9x7MxP8d8R2f9uW8"},
+{"name":"Nike Performance Socks","price":15,"description":"Cushioned sports socks.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl9i5H5GqR0T9X7YVt7y5lMxqS8VgZ4f7uE"},
+{"name":"Adidas Crew Socks","price":12,"description":"Everyday casual socks.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl9i5H5GqR0T9X7YVt7y5lMxqS8VgZ4f7uE"},
+{"name":"Puma Ankle Socks","price":10,"description":"Lightweight sports socks.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl9i5H5GqR0T9X7YVt7y5lMxqS8VgZ4f7uE"},
+{"name":"North Face Beanie","price":29,"description":"Warm winter headwear.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghm0j6H6HgP1S8S3JfFf0x8MxP9d8R2f9uW9"},
+{"name":"Carhartt Beanie","price":19,"description":"Casual everyday beanie.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghm0j6H6HgP1S8S3JfFf0x8MxP9d8R2f9uW9"},
+{"name":"Adidas Track Jacket","price":79,"description":"Lightweight sporty jacket.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghm1k7H7GqR2T9X7YVt7y5lMxqS9VgZ4f7uF"},
+{"name":"Nike Windrunner Jacket","price":99,"description":"Classic running jacket.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghm1k7H7GqR2T9X7YVt7y5lMxqS9VgZ4f7uF"},
+{"name":"Zara Women's Dress","price":79,"description":"Stylish everyday dress.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghm2l8H8HgP3S8S3JfFf2x8MxP10d8R2f9uW0"},
+{"name":"H&M Maxi Dress","price":69,"description":"Comfortable flowy dress.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghm2l8H8HgP3S8S3JfFf2x8MxP10d8R2f9uW0"},
+{"name":"Uniqlo Women's Blouse","price":39,"description":"Casual office wear blouse.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghm2l8H8HgP3S8S3JfFf2x8MxP10d8R2f9uW0"},
+{"name":"Levi's Women's Skinny Jeans","price":89,"description":"Slim fit denim for women.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghm3m9H9GqR4T9X7YVt7y5lMxqS10VgZ4f7uG"},
+{"name":"Zara Women's Jeans","price":79,"description":"Comfortable casual denim.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghm3m9H9GqR4T9X7YVt7y5lMxqS10VgZ4f7uG"},
+{"name":"Adidas Women's Hoodie","price":69,"description":"Comfy sporty hoodie.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghm4n0H0HgP5S8S3JfFf4x9MxP11d8R2f9uW1"},
+{"name":"Nike Women's T-Shirt","price":29,"description":"Breathable sports tee.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghm4n0H0HgP5S8S3JfFf4x9MxP11d8R2f9uW1"},
+{"name":"Ray-Ban Women's Sunglasses","price":159,"description":"Elegant designer sunglasses.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshm5o1H1GqR6T9X7YVt7y5lMxqS11VgZ4f7uH"},
+{"name":"Oakley Women's Sunglasses","price":129,"description":"Sporty polarized shades for women.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshm5o1H1GqR6T9X7YVt7y5lMxqS11VgZ4f7uH"},
+{"name":"Gucci Women's Leather Bag","price":799,"description":"Luxury designer handbag.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshm6p2H2HgP7S8S3JfFf5x9MxP12d8R2f9uW2"}
+  ,
+  // ===== FASHION & APPAREL – BLOCK 3 =====
+{"name":"Levi's Trucker Jacket","price":119,"description":"Classic denim jacket.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl1a7H8GqR4T9X7YVt7y5lMxqS4VgZ4f7uA"},
+{"name":"H&M Leather Jacket","price":149,"description":"Stylish faux leather jacket.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl1a7H8GqR4T9X7YVt7y5lMxqS4VgZ4f7uA"},
+{"name":"Zara Blazer","price":129,"description":"Modern tailored blazer.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl1a7H8GqR4T9X7YVt7y5lMxqS4VgZ4f7uA"},
+{"name":"Uniqlo Ultra Light Down Jacket","price":99,"description":"Lightweight warm jacket.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl1a7H8GqR4T9X7YVt7y5lMxqS4VgZ4f7uA"},
+{"name":"Nike Sports Cap","price":29,"description":"Adjustable breathable cap.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshl2b8H9HgP5S8S3JfFf6x7MxP5d8R2f9uW5"},
+{"name":"Adidas Baseball Cap","price":25,"description":"Classic sporty cap.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshl2b8H9HgP5S8S3JfFf6x7MxP5d8R2f9uW5"},
+{"name":"Vans Snapback Hat","price":19,"description":"Casual streetwear hat.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshl2b8H9HgP5S8S3JfFf6x7MxP5d8R2f9uW5"},
+{"name":"Tommy Hilfiger Hoodie","price":89,"description":"Everyday comfortable hoodie.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl3c9H9GqR6T9X7YVt7y5lMxqS5VgZ4f7uB"},
+{"name":"Champion Reverse Weave Hoodie","price":79,"description":"Durable cotton hoodie.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl3c9H9GqR6T9X7YVt7y5lMxqS5VgZ4f7uB"},
+{"name":"H&M Hoodie","price":49,"description":"Affordable casual hoodie.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl3c9H9GqR6T9X7YVt7y5lMxqS5VgZ4f7uB"},
+{"name":"Nike Dri-FIT T-Shirt","price":29,"description":"Lightweight sports tee.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshl4d0H0HgP6S8S3JfFf7x7MxP6d8R2f9uW6"},
+{"name":"Adidas Originals T-Shirt","price":35,"description":"Casual streetwear tee.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshl4d0H0HgP6S8S3JfFf7x7MxP6d8R2f9uW6"},
+{"name":"Puma Graphic Tee","price":25,"description":"Trendy printed t-shirt.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshl4d0H0HgP6S8S3JfFf7x7MxP6d8R2f9uW6"},
+{"name":"Levi's Skinny Jeans","price":89,"description":"Slim fit denim.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl5e1H1GqR7T9X7YVt7y5lMxqS6VgZ4f7uC"},
+{"name":"Zara Relaxed Fit Jeans","price":79,"description":"Comfortable casual jeans.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl5e1H1GqR7T9X7YVt7y5lMxqS6VgZ4f7uC"},
+{"name":"H&M Cargo Pants","price":69,"description":"Trendy utility pants.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl5e1H1GqR7T9X7YVt7y5lMxqS6VgZ4f7uC"},
+{"name":"Nike Air Max 90","price":139,"description":"Iconic cushioned sneakers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl6f2H2HgP8S8S3JfFf8x7MxP7d8R2f9uW7"},
+{"name":"Adidas Superstar","price":129,"description":"Classic shell-toe sneakers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl6f2H2HgP8S8S3JfFf8x7MxP7d8R2f9uW7"},
+{"name":"Vans Slip-On","price":59,"description":"Easy-wear casual sneakers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghl6f2H2HgP8S8S3JfFf8x7MxP7d8R2f9uW7"},
+{"name":"Ray-Ban Wayfarer Sunglasses","price":159,"description":"Timeless designer sunglasses.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshl7g3H3GqR9T9X7YVt7y5lMxqS7VgZ4f7uD"}
+,
+  // ===== FASHION & APPAREL – BLOCK 2 =====
+{"name":"Nike Dri-FIT Shorts","price":39,"description":"Breathable workout shorts.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghj6c5H8GqR9T9X7YVt7y5lMxqS2VgZ4f7uH"},
+{"name":"Adidas Tiro 21 Pants","price":49,"description":"Training sports pants.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghj6c5H8GqR9T9X7YVt7y5lMxqS2VgZ4f7uH"},
+
+{"name":"Converse Chuck Taylor","price":69,"description":"Timeless casual sneakers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQshj7t5G9FgQ2UqZ7YHf3y5lMxqS3VgX3f7vJ"},
+{"name":"Vans Old Skool","price":59,"description":"Skateboarding classic sneakers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQshj7t5G9FgQ2UqZ7YHf3y5lMxqS3VgX3f7vJ"},
+
+{"name":"Tommy Hilfiger Polo Shirt","price":79,"description":"Smart-casual branded polo.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshj8t6G6HgP3S8S3JfFf5x6MxP3d8R2f9uW3"},
+{"name":"Ralph Lauren Polo Shirt","price":89,"description":"Premium designer polo.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshj8t6G6HgP3S8S3JfFf5x6MxP3d8R2f9uW3"},
+
+{"name":"Adidas Originals Hoodie","price":69,"description":"Casual comfortable hoodie.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghj9c5H8GqR3T9X7YVt7y5lMxqS3VgZ4f7uI"},
+{"name":"Puma Essentials Hoodie","price":59,"description":"Simple stylish hoodie.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghj9c5H8GqR3T9X7YVt7y5lMxqS3VgZ4f7uI"},
+
+{"name":"North Face Jacket","price":129,"description":"Outdoor all-weather jacket.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshk0j6H9HgP4S8S3JfGg6x7MxP4d8R2f9uW4"},
+{"name":"Patagonia Fleece Jacket","price":119,"description":"Warm casual jacket.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshk0j6H9HgP4S8S3JfGg6x7MxP4d8R2f9uW4"},
+
+  // ===== FASHION & APPAREL – BLOCK 1 =====
+{"name":"Nike Air Force 1","price":129,"description":"Classic low-top sneakers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghr3c4mG9xq8sQYt8YVtM6Hq6n0S9kO9bM9K"},
+{"name":"Adidas Ultraboost 22","price":179,"description":"Comfortable running sneakers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghr3c4mG9xq8sQYt8YVtM6Hq6n0S9kO9bM9K"},
+{"name":"Puma RS-X³","price":149,"description":"Retro-style sneakers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSghr3c4mG9xq8sQYt8YVtM6Hq6n0S9kO9bM9K"},
+
+{"name":"Levi's 501 Original Jeans","price":89,"description":"Classic straight-leg denim.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsjh3t4C9FgQ1UqZ7YHf0y5lLxqS8VgX2f6vH"},
+{"name":"Wrangler Slim Fit Jeans","price":79,"description":"Stylish and comfortable denim.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsjh3t4C9FgQ1UqZ7YHf0y5lLxqS8VgX2f6vH"},
+
+{"name":"Gucci GG Hoodie","price":499,"description":"Luxury streetwear hoodie.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshj4t4G6FgQ8S8J3lVf3x5lMxP1d8R2f9uW1"},
+{"name":"Supreme Box Logo Tee","price":249,"description":"Iconic streetwear t-shirt.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshj4t4G6FgQ8S8J3lVf3x5lMxP1d8R2f9uW1"},
+{"name":"Off-White Diagonal Hoodie","price":399,"description":"High-end designer hoodie.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshj4t4G6FgQ8S8J3lVf3x5lMxP1d8R2f9uW1"},
+
+{"name":"Zara Men's Slim Shirt","price":49,"description":"Casual office wear shirt.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjsh5t4F5HgP1R9Z7YHf2y5lLxqS9VhX3f9vT"},
+{"name":"H&M Crew Neck Sweater","price":39,"description":"Comfortable everyday sweater.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjsh5t4F5HgP1R9Z7YHf2y5lLxqS9VhX3f9vT"},
+
+{"name":"Ray-Ban Aviator Sunglasses","price":159,"description":"Classic gold frame sunglasses.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsh5j4F6HgP2Q8S8J3lFf4x6MxP2d8R2f9uW2"},
+{"name":"Oakley Sport Sunglasses","price":129,"description":"Lightweight sporty shades.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsh5j4F6HgP2Q8S8J3lFf4x6MxP2d8R2f9uW2"},
+
+{"name": "Nike Air Jordan 1", "price": 150, "description": "Classic high-top sneakers.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvBha262LCrrcMEfHlg0i1oErK8mtV_BSk49_UGfVDIc5kqgkuiCs7o4HqiN10HLTVWR_38vJNxSEGNxY6FiZ3OAohO99ULuusyzCJzunCs718FfJrIsKE"},
+{"name": "Levi’s 501 Jeans", "price": 60, "description": "Iconic straight-leg denim.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Zara Leather Jacket", "price": 120, "description": "Stylish black faux leather jacket.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Adidas Running Shorts", "price": 35, "description": "Lightweight, breathable athletic shorts.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Ray-Ban Aviator Sunglasses", "price": 180, "description": "Timeless sunglasses for men and women.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "H&M Basic T-Shirt", "price": 15, "description": "Soft cotton tee in multiple colors.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Michael Kors Tote Bag", "price": 250, "description": "Designer handbag for casual & office use.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Champion Hoodie", "price": 60, "description": "Comfortable hoodie for daily wear.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "UGG Classic Boots", "price": 140, "description": "Warm and comfy winter boots.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvBha262LCrrcMEfHlg0i1oErK8mtV_BSk49_UGfVDIc5kqgkuiCs7o4HqiN10HLTVWR_38vJNxSEGNxY6FiZ3OAohO99ULuusyzCJzunCs718FfJrIsKE"},
+{"name": "Casio Digital Watch", "price": 25, "description": "Retro-style digital wristwatch.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+// 10 NEW
+{"name": "Ralph Lauren Polo Shirt", "price": 95, "description": "Classic fit cotton mesh polo.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "North Face Puffer Jacket", "price": 280, "description": "Warm insulated jacket for winter.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Converse Chuck Taylor", "price": 65, "description": "High top canvas sneakers.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvBha262LCrrcMEfHlg0i1oErK8mtV_BSk49_UGfVDIc5kqgkuiCs7o4HqiN10HLTVWR_38vJNxSEGNxY6FiZ3OAohO99ULuusyzCJzunCs718FfJrIsKE"},
+{"name": "Silk Scarf", "price": 45, "description": "Elegant patterned silk scarf.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Leather Belt", "price": 30, "description": "Genuine leather belt with metal buckle.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Wool Beanie", "price": 20, "description": "Warm knitted cap for cold weather.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Summer Floral Dress", "price": 55, "description": "Lightweight dress for sunny days.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Denim Jacket", "price": 70, "description": "Vintage wash jean jacket.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Formal Blazer", "price": 150, "description": "Slim fit blazer for business wear.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"},
+{"name": "Yoga Leggings", "price": 40, "description": "High-waisted stretch leggings.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTbHXqDUwvMWxYBoPIvqlmBwrYefOdJxBmzHLl7wqlkr-M33JZGd3YpciqdG2tiyrSflT8dEz69n49A_mUzdDx_na99Hav-Bg"}
+]
+},
+{
+"name": "Health & Beauty",
+"products": [
+  {"name":"Vitamin C Supplement","price":20,"description":"Boost your immunity.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth1"},
+{"name":"Face Moisturizer","price":25,"description":"Hydrating skincare cream.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth2"},
+{"name":"Shampoo","price":15,"description":"Nourishing hair shampoo.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth3"},
+{"name":"Conditioner","price":15,"description":"Smooth and soft hair.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth4"},
+{"name":"Sunscreen SPF 50","price":30,"description":"Protects against UV rays.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth5"},
+{"name":"Toothpaste","price":5,"description":"Cavity protection toothpaste.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth6"},
+{"name":"Electric Toothbrush","price":40,"description":"Rechargeable toothbrush.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth7"},
+{"name":"Lip Balm","price":5,"description":"Moisturizes and protects lips.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth8"},
+{"name":"Hair Dryer","price":50,"description":"Fast drying hair tool.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth9"},
+{"name":"Nail Polish Set","price":25,"description":"Vibrant nail colors.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth10"},
+{"name":"Face Serum","price":35,"description":"Anti-aging serum.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth11"},
+{"name":"Hand Cream","price":10,"description":"Softens dry hands.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth12"},
+{"name":"Body Lotion","price":20,"description":"Smooth and hydrated skin.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth13"},
+{"name":"Eye Cream","price":30,"description":"Reduces dark circles.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth14"},
+{"name":"Perfume","price":50,"description":"Long-lasting fragrance.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth15"},
+{"name":"Makeup Kit","price":45,"description":"Complete cosmetics set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth16"},
+{"name":"Facial Cleansing Brush","price":35,"description":"Deep cleans pores.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth17"},
+{"name":"Shaving Kit","price":25,"description":"Complete grooming kit.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth18"},
+{"name":"Deodorant","price":10,"description":"All-day freshness.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth19"},
+{"name":"Bath Bombs","price":15,"description":"Relaxing scented bombs.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth20"},
+{"name":"Hair Oil","price":12,"description":"Nourishing hair oil.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth21"},
+{"name":"Face Mask Pack","price":18,"description":"Skin rejuvenation masks.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth22"},
+{"name":"Body Scrub","price":20,"description":"Exfoliating scrub.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth23"},
+{"name":"Makeup Brushes Set","price":30,"description":"Precision makeup tools.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth24"},
+{"name":"Hair Straightener","price":60,"description":"Professional flat iron.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth25"},
+{"name":"Hair Curler","price":55,"description":"Curling iron for styling.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth26"},
+{"name":"Shower Gel","price":10,"description":"Refreshing body wash.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth27"},
+{"name":"Bath Soap","price":5,"description":"Gentle cleansing soap.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth28"},
+{"name":"Facial Toner","price":15,"description":"Balances skin pH.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth29"},
+{"name":"Hair Spray","price":12,"description":"Hold and style hair.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcHealth30"},
+
+{"name": "The Ordinary Niacinamide Serum", "price": 10, "description": "Reduces blemishes and improves skin texture.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "L’Oreal Revitalift Cream", "price": 25, "description": "Anti-aging moisturizer.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Philips Sonicare Toothbrush", "price": 80, "description": "Electric toothbrush with smart timer.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Dove Body Wash", "price": 6, "description": "Moisturizing daily body wash.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Revlon Hair Dryer", "price": 40, "description": "Compact blow dryer with multiple heat settings.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Fenty Beauty Gloss Bomb", "price": 19, "description": "Universal lip gloss.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Nature’s Bounty Vitamin D3", "price": 12, "description": "Supports bone and immune health.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Olaplex Hair Perfector", "price": 30, "description": "Repairs damaged hair and strengthens strands.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Neutrogena Hydro Boost Gel", "price": 20, "description": "Hydrating face gel for all skin types.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+// 10 NEW
+{"name": "La Roche-Posay Sunscreen", "price": 35, "description": "SPF 60 face sunscreen melt-in milk.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "CeraVe Foaming Cleanser", "price": 16, "description": "Daily face wash for normal to oily skin.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Maybelline Mascara", "price": 12, "description": "Volumizing mascara very black.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Dior Sauvage Cologne", "price": 110, "description": "Fresh and spicy fragrance for men.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Chanel No. 5 Perfume", "price": 135, "description": "Classic feminine floral fragrance.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Burt's Bees Lip Balm", "price": 4, "description": "Natural moisturizing beeswax balm.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Gillette ProGlide Razor", "price": 20, "description": "Men's razor with FlexBall technology.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Oral-B Glide Floss", "price": 5, "description": "Mint flavor dental floss.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "First Aid Kit", "price": 25, "description": "Compact emergency medical supplies.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"},
+{"name": "Yoga Muscle Balm", "price": 15, "description": "Soothing balm for sore muscles.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRd0aalaubdPm9XeyAMmxtcr7mqsaRkQ-5bgMPlkr8zjQ6odRx3aX9t6q1_EvmaalrN0ZhCOCvVk6zLEqNrobIFCABOddSEdk3p3Sp0es8XaduSYqVroUpEEg"}
+]
+},
+{
+"name": "Home & Living",
+"products": [
+  // ===== HOME & LIVING – BLOCK 4 =====
+{"name":"Mainstays 3-Shelf Bakers Rack","price":49,"description":"Kitchen storage and display rack.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh60h60GqR60T9X7YVt7y5lMxP60VgZ4f7uX60"},
+{"name":"Umbra Trigg Wall Planter","price":29,"description":"Geometric wall-mounted planter.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh61i61HgP61S8S3JfFf61x7MxP61d8R2f9uX61"},
+{"name":"SONGMICS Foldable Storage Ottoman","price":39,"description":"Seating and hidden storage.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh62j62GqR62T9X7YVt7y5lMxP62VgZ4f7uX62"},
+{"name":"Mainstays 8-Piece Flatware Set","price":29,"description":"Complete stainless steel cutlery set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh63k63HgP63S8S3JfFf63x7MxP63d8R2f9uX63"},
+{"name":"Keurig K-Mini Coffee Maker","price":79,"description":"Single-serve coffee brewer.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh64l64GqR64T9X7YVt7y5lMxP64VgZ4f7uX64"},
+{"name":"Mainstays 4-Piece Cutting Board Set","price":19,"description":"Durable kitchen cutting boards.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh65m65HgP65S8S3JfFf65x7MxP65d8R2f9uX65"},
+{"name":"OXO Good Grips 3-Piece Can Opener Set","price":24,"description":"Ergonomic and durable can openers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh66n66GqR66T9X7YVt7y5lMxP66VgZ4f7uX66"},
+{"name":"Mainstays 5-Piece Mixing Bowl Set","price":29,"description":"Non-slip kitchen mixing bowls.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh67o67HgP67S8S3JfFf67x7MxP67d8R2f9uX67"},
+{"name":"Bissell SpotClean Carpet Cleaner","price":129,"description":"Portable deep-cleaning carpet machine.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh68p68GqR68T9X7YVt7y5lMxP68VgZ4f7uX68"},
+{"name":"Mainstays 2-Shelf Utility Cart","price":35,"description":"Mobile storage and organization cart.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh69q69HgP69S8S3JfFf69x7MxP69d8R2f9uX69"},
+{"name":"iDesign Plastic Drawer Organizer","price":19,"description":"Multi-compartment kitchen organizer.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh70r70GqR70T9X7YVt7y5lMxP70VgZ4f7uX70"},
+{"name":"Ninja Foodi Digital Air Fryer","price":129,"description":"Air fryer and pressure cooker combo.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh71s71HgP71S8S3JfFf71x7MxP71d8R2f9uX71"},
+{"name":"Mainstays 5-Piece Nonstick Cookware Set","price":49,"description":"Durable nonstick kitchen pots and pans.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh72t72GqR72T9X7YVt7y5lMxP72VgZ4f7uX72"},
+{"name":"Etekcity Digital Measuring Cup","price":15,"description":"Accurate liquid measurements for cooking.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh73u73HgP73S8S3JfFf73x7MxP73d8R2f9uX73"},
+{"name":"Mainstays 6-Cup Glass Coffee Carafe","price":29,"description":"Durable glass coffee pot.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh74v74GqR74T9X7YVt7y5lMxP74VgZ4f7uX74"},
+{"name":"Hamilton Beach 2-Way Brewer Coffee Maker","price":79,"description":"Single-serve and full pot brewing.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh75w75HgP75S8S3JfFf75x7MxP75d8R2f9uX75"},
+{"name":"Mainstays 8-Piece Kitchen Utensil Set","price":29,"description":"Essential cooking tools and gadgets.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh76x76GqR76T9X7YVt7y5lMxP76VgZ4f7uX76"},
+{"name":"OXO Good Grips 3-Piece Measuring Cup Set","price":19,"description":"Ergonomic measuring cups for baking.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh77y77HgP77S8S3JfFf77x7MxP77d8R2f9uX77"},
+{"name":"Mainstays 3-Piece Bakeware Set","price":25,"description":"Nonstick baking pans and cookie sheets.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh78z78GqR78T9X7YVt7y5lMxP78VgZ4f7uX78"},
+{"name":"Bamboo Utensil Holder","price":19,"description":"Eco-friendly kitchen organizer.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh79a79HgP79S8S3JfFf79x7MxP79d8R2f9uX79"},
+
+  // ===== HOME & LIVING – BLOCK 3 =====
+{"name":"Lasko Ceramic Space Heater","price":39,"description":"Compact personal heater.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh40n40GqR40T9X7YVt7y5lMxP40VgZ4f7uX40"},
+{"name":"Mainstays 3-Shelf Storage Organizer","price":29,"description":"Simple storage rack.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh41o41HgP41S8S3JfFf41x7MxP41d8R2f9uX41"},
+{"name":"SONGMICS Bamboo Waste Basket","price":19,"description":"Eco-friendly bathroom trash can.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh42p42GqR42T9X7YVt7y5lMxP42VgZ4f7uX42"},
+{"name":"Noritake Colorwave Mug Set","price":29,"description":"Microwave and dishwasher safe mugs.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh43q43HgP43S8S3JfFf43x7MxP43d8R2f9uX43"},
+{"name":"Umbra Conceal Floating Shelf","price":39,"description":"Hidden wall storage shelf.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh44r44GqR44T9X7YVt7y5lMxP44VgZ4f7uX44"},
+{"name":"Mainstays Round Accent Table","price":49,"description":"Stylish small living room table.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh45s45HgP45S8S3JfFf45x7MxP45d8R2f9uX45"},
+{"name":"Keter 50 Gallon Deck Box","price":89,"description":"Outdoor storage bench.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh46t46GqR46T9X7YVt7y5lMxP46VgZ4f7uX46"},
+{"name":"iRobot Braava Jet 240","price":169,"description":"Robot mop for hard floors.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh47u47HgP47S8S3JfFf47x7MxP47d8R2f9uX47"},
+{"name":"Mainstays Folding Utility Table","price":39,"description":"Portable table for events.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh48v48GqR48T9X7YVt7y5lMxP48VgZ4f7uX48"},
+{"name":"Bamboo Bathtub Tray Caddy","price":25,"description":"Bath tray with book and tablet holder.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh49w49HgP49S8S3JfFf49x7MxP49d8R2f9uX49"},
+{"name":"Mainstays 7-Piece Kitchen Canister Set","price":29,"description":"Airtight storage containers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh50x50GqR50T9X7YVt7y5lMxP50VgZ4f7uX50"},
+{"name":"Etekcity Digital Kitchen Timer","price":15,"description":"Simple digital countdown timer.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh51y51HgP51S8S3JfFf51x7MxP51d8R2f9uX51"},
+{"name":"Honeywell HTF090B TurboFan Heater","price":29,"description":"Compact ceramic heater for rooms.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh52z52GqR52T9X7YVt7y5lMxP52VgZ4f7uX52"},
+{"name":"Mainstays 5-Piece Knife Block Set","price":39,"description":"Essential kitchen knives with block.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh53a53HgP53S8S3JfFf53x7MxP53d8R2f9uX53"},
+{"name":"OXO Good Grips 3-Piece Peeler Set","price":19,"description":"Durable and ergonomic peelers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh54b54GqR54T9X7YVt7y5lMxP54VgZ4f7uX54"},
+{"name":"Mainstays 6-Piece Glass Bakeware Set","price":29,"description":"Oven-safe glass cookware.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh55c55HgP55S8S3JfFf55x7MxP55d8R2f9uX55"},
+{"name":"Simplehuman Sensor Trash Can","price":139,"description":"Touch-free stainless steel trash can.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh56d56GqR56T9X7YVt7y5lMxP56VgZ4f7uX56"},
+{"name":"Bamboo Cutting Board Set","price":29,"description":"Durable kitchen cutting boards.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh57e57HgP57S8S3JfFf57x7MxP57d8R2f9uX57"},
+{"name":"Mainstays 3-Tier Spice Rack","price":19,"description":"Compact spice storage organizer.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh58f58GqR58T9X7YVt7y5lMxP58VgZ4f7uX58"},
+{"name":"Hamilton Beach Breakfast Sandwich Maker","price":29,"description":"Quick homemade sandwiches.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh59g59HgP59S8S3JfFf59x7MxP59d8R2f9uX59"},
+
+// ===== HOME & LIVING – BLOCK 2 =====
+{"name":"Seville Classics Shoe Rack","price":49,"description":"5-tier metal shoe organizer.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh20t20GqR20T9X7YVt7y5lMxP20VgZ4f7uX20"},
+{"name":"Umbra Wall Mirror","price":79,"description":"Modern decorative mirror.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh21u21HgP21S8S3JfFf21x7MxP21d8R2f9uX21"},
+{"name":"SimpleHouseware Closet Organizer","price":35,"description":"Portable hanging shelves.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh22v22GqR22T9X7YVt7y5lMxP22VgZ4f7uX22"},
+{"name":"Gorilla Grip Original Bath Mat","price":25,"description":"Non-slip bath mat.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh23w23HgP23S8S3JfFf23x7MxP23d8R2f9uX23"},
+{"name":"Songmics Bamboo Hanging Closet","price":39,"description":"Expandable bamboo shelf rack.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh24x24GqR24T9X7YVt7y5lMxP24VgZ4f7uX24"},
+{"name":"YAMAZAKI Home 3-Tier Spice Rack","price":29,"description":"Countertop spice organizer.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh25y25HgP25S8S3JfFf25x7MxP25d8R2f9uX25"},
+{"name":"Mainstays 5-Shelf Bookcase","price":49,"description":"Compact storage bookcase.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh26z26GqR26T9X7YVt7y5lMxP26VgZ4f7uX26"},
+{"name":"Lodge Cast Iron Skillet","price":39,"description":"Durable 10-inch skillet.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh27a27HgP27S8S3JfFf27x7MxP27d8R2f9uX27"},
+{"name":"Cuisinart Knife Set","price":79,"description":"12-piece stainless steel knives.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh28b28GqR28T9X7YVt7y5lMxP28VgZ4f7uX28"},
+{"name":"Keter Resin Storage Box","price":59,"description":"Outdoor waterproof storage.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh29c29HgP29S8S3JfFf29x7MxP29d8R2f9uX29"},
+{"name":"Vornado Small Room Air Circulator","price":49,"description":"Compact desk fan.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh30d30GqR30T9X7YVt7y5lMxP30VgZ4f7uX30"},
+{"name":"Rubbermaid Easy Find Lids Container","price":24,"description":"Food storage set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh31e31HgP31S8S3JfFf31x7MxP31d8R2f9uX31"},
+{"name":"Mainstays 6-Cube Organizer","price":35,"description":"Modular storage cubes.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh32f32GqR32T9X7YVt7y5lMxP32VgZ4f7uX32"},
+{"name":"Zinus Memory Foam Mattress","price":199,"description":"Queen size foam mattress.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh33g33HgP33S8S3JfFf33x7MxP33d8R2f9uX33"},
+{"name":"Nexgrill 4-Burner Propane Gas Grill","price":259,"description":"Outdoor barbecue grill.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh34h34GqR34T9X7YVt7y5lMxP34VgZ4f7uX34"},
+{"name":"Globe Electric Floor Lamp","price":69,"description":"Adjustable standing lamp.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh35i35HgP35S8S3JfFf35x7MxP35d8R2f9uX35"},
+{"name":"Seville Classics UltraHD Storage Rack","price":89,"description":"Heavy-duty metal shelving.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh36j36GqR36T9X7YVt7y5lMxP36VgZ4f7uX36"},
+{"name":"iDesign Linus Over the Sink Dish Rack","price":25,"description":"Space-saving dish drying rack.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh37k37HgP37S8S3JfFf37x7MxP37d8R2f9uX37"},
+{"name":"Honeywell HPA300 Air Purifier","price":229,"description":"True HEPA purifier for large rooms.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh38l38GqR38T9X7YVt7y5lMxP38VgZ4f7uX38"},
+{"name":"Mainstays 4-Piece Dinnerware Set","price":29,"description":"Durable ceramic plates and bowls.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh39m39HgP39S8S3JfFf39x7MxP39d8R2f9uX39"},
+
+  // ===== HOME & LIVING – BLOCK 1 =====
+{"name":"IKEA Lack Coffee Table","price":49,"description":"Minimalist wooden coffee table.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh1a1H1HgP1S8S3JfFf1x7MxP1d8R2f9uX1"},
+{"name":"AmazonBasics Memory Foam Pillow","price":25,"description":"Soft ergonomic pillow.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh1a1H1HgP1S8S3JfFf1x7MxP1d8R2f9uX1"},
+{"name":"Philips LED Desk Lamp","price":39,"description":"Adjustable desk lamp with LED light.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh2b2H2GqR2T9X7YVt7y5lMxP2VgZ4f7uX2"},
+{"name":"Dyson V11 Vacuum Cleaner","price":599,"description":"High-power cordless vacuum.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh3c3H3HgP3S8S3JfFf3x7MxP3d8R2f9uX3"},
+{"name":"Ninja Professional Blender","price":99,"description":"High-speed kitchen blender.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh4d4H4GqR4T9X7YVt7y5lMxP4VgZ4f7uX4"},
+{"name":"Etekcity Digital Kitchen Scale","price":19,"description":"Precision scale for cooking.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh5e5H5HgP5S8S3JfFf5x7MxP5d8R2f9uX5"},
+{"name":"Simplehuman Trash Can","price":79,"description":"Stainless steel step trash can.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh6f6H6GqR6T9X7YVt7y5lMxP6VgZ4f7uX6"},
+{"name":"Utopia Bedding Sheet Set","price":45,"description":"Soft microfiber bed sheets.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh7g7H7HgP7S8S3JfFf7x7MxP7d8R2f9uX7"},
+{"name":"Bedsure Throw Blanket","price":29,"description":"Cozy fleece throw blanket.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh8h8H8GqR8T9X7YVt7y5lMxP8VgZ4f7uX8"},
+{"name":"iRobot Roomba 692","price":249,"description":"Automatic robotic vacuum cleaner.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh9i9H9HgP9S8S3JfFf9x7MxP9d8R2f9uX9"},
+{"name":"Levoit Air Purifier","price":99,"description":"HEPA filter air purifier.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh10j10GqR10T9X7YVt7y5lMxP10VgZ4f7uX10"},
+{"name":"Keurig K-Elite Coffee Maker","price":129,"description":"Single-serve coffee machine.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh11k11HgP11S8S3JfFf11x7MxP11d8R2f9uX11"},
+{"name":"Instant Pot Duo 7-in-1","price":89,"description":"Electric pressure cooker.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh12l12GqR12T9X7YVt7y5lMxP12VgZ4f7uX12"},
+{"name":"Furinno 3-Tier End Table","price":29,"description":"Compact living room side table.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh13m13HgP13S8S3JfFf13x7MxP13d8R2f9uX13"},
+{"name":"OXO Good Grips Salad Spinner","price":39,"description":"Efficient salad drying tool.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh14n14GqR14T9X7YVt7y5lMxP14VgZ4f7uX14"},
+{"name":"YETI Rambler Tumbler","price":39,"description":"Insulated travel cup.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh15o15HgP15S8S3JfFf15x7MxP15d8R2f9uX15"},
+{"name":"AmazonBasics Microfiber Towels","price":15,"description":"Highly absorbent bath towels.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh16p16GqR16T9X7YVt7y5lMxP16VgZ4f7uX16"},
+{"name":"Hamilton Beach Electric Kettle","price":29,"description":"Quick boiling kettle.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh17q17HgP17S8S3JfFf17x7MxP17d8R2f9uX17"},
+{"name":"Midea Microwave Oven","price":99,"description":"Compact countertop microwave.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh18r18GqR18T9X7YVt7y5lMxP18VgZ4f7uX18"},
+{"name":"Bissell Carpet Cleaner","price":129,"description":"Deep cleaning carpet machine.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRshh19s19HgP19S8S3JfFf19x7MxP19d8R2f9uX19"},
+
+{"name": "Ikea Lack Coffee Table", "price": 50, "description": "Minimalist and affordable table.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Dyson V15 Vacuum Cleaner", "price": 699, "description": "High-performance cordless vacuum.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Philips Hue Smart Bulbs", "price": 50, "description": "Color-changing smart lights.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "AmazonBasics Bed Sheets", "price": 30, "description": "Soft microfiber queen-size sheets.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Nespresso Coffee Machine", "price": 199, "description": "Single-serve espresso maker.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Umbra Wall Mirror", "price": 60, "description": "Modern home décor mirror.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Bedside Table Lamp", "price": 35, "description": "LED lamp with adjustable brightness.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Instant Pot Duo", "price": 120, "description": "Multi-use pressure cooker and slow cooker.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Himalayan Salt Lamp", "price": 25, "description": "Ambient lighting and air purifier lamp.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+// 10 NEW
+{"name": "Shark Robot Vacuum", "price": 300, "description": "WiFi connected robot vacuum cleaner.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Memory Foam Pillow", "price": 40, "description": "Ergonomic neck support pillow.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Fleece Throw Blanket", "price": 25, "description": "Soft warm blanket for sofa.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "KitchenAid Stand Mixer", "price": 450, "description": "Classic mixer for baking.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Area Rug (5x7)", "price": 100, "description": "Modern geometric pattern rug.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Blackout Curtains", "price": 45, "description": "Thermal insulated window curtains.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Glass Flower Vase", "price": 20, "description": "Elegant clear glass vase.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Wall Clock", "price": 30, "description": "Silent non-ticking quartz clock.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Bath Towel Set", "price": 35, "description": "100% Cotton absorbent towels.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"},
+{"name": "Essential Oil Diffuser", "price": 25, "description": "Aromatherapy humidifier with LED.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy-kCSajX6rIhXkOpA6SCrwtGt_jqtjYQ2xf3ibFfmAGTv-aLy"}
+]
+},
+{
+"name": "Sports & Outdoors",
+"products": [
+  {"name":"Yoga Mat","price":30,"description":"Non-slip exercise mat.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports1"},
+{"name":"Dumbbell Set","price":60,"description":"Adjustable weight dumbbells.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports2"},
+{"name":"Treadmill","price":500,"description":"Foldable home treadmill.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports3"},
+{"name":"Football","price":20,"description":"Official size soccer ball.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports4"},
+{"name":"Basketball","price":25,"description":"Indoor/outdoor basketball.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports5"},
+{"name":"Camping Tent","price":100,"description":"2-person outdoor tent.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports6"},
+{"name":"Running Shoes","price":80,"description":"Lightweight sports shoes.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports7"},
+{"name":"Water Bottle","price":10,"description":"BPA-free sports bottle.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports8"},
+{"name":"Fitness Tracker","price":60,"description":"Monitor your daily activity.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports9"},
+{"name":"Resistance Bands","price":20,"description":"Home workout bands.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports10"},
+{"name":"Tennis Racket","price":50,"description":"Professional tennis racket.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports11"},
+{"name":"Golf Club Set","price":300,"description":"Complete golf kit.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports12"},
+{"name":"Cycling Helmet","price":40,"description":"Safety first for cyclists.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports13"},
+{"name":"Jump Rope","price":8,"description":"Cardio jump rope.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports14"},
+{"name":"Camping Backpack","price":70,"description":"Large capacity outdoor pack.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports15"},
+{"name":"Hiking Boots","price":90,"description":"Durable outdoor boots.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports16"},
+{"name":"Sleeping Bag","price":60,"description":"Comfortable camping sleep.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports17"},
+{"name":"Kayak Paddle","price":50,"description":"Lightweight water paddle.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports18"},
+{"name":"Fishing Rod","price":45,"description":"Lightweight fishing rod.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports19"},
+{"name":"Sports Gloves","price":15,"description":"Protect your hands during workouts.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports20"},
+{"name":"Pull-Up Bar","price":40,"description":"Doorway exercise bar.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports21"},
+{"name":"Exercise Ball","price":25,"description":"Core workout ball.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports22"},
+{"name":"Kettlebell","price":35,"description":"Strength training tool.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports23"},
+{"name":"Skateboard","price":60,"description":"Beginner skateboard deck.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports24"},
+{"name":"Inline Skates","price":70,"description":"Rollerblading skates.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports25"},
+{"name":"Climbing Rope","price":80,"description":"Strong climbing rope.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports26"},
+{"name":"Yoga Blocks","price":15,"description":"Support for poses.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports27"},
+{"name":"Resistance Loop Bands","price":12,"description":"Mini bands for exercises.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports28"},
+{"name":"Foam Roller","price":20,"description":"Muscle recovery tool.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports29"},
+{"name":"Portable Gym Kit","price":100,"description":"All-in-one home fitness kit.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSports30"},
+
+
+{"name": "Fitbit Charge 6", "price": 150, "description": "Fitness tracker with heart rate and GPS.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Adidas Soccer Ball", "price": 30, "description": "Official size and weight for training & matches.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Under Armour Hoodie", "price": 55, "description": "Comfortable workout hoodie.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Coleman Camping Tent", "price": 120, "description": "Easy setup, durable tent.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Schwinn Mountain Bike", "price": 450, "description": "Sturdy bike for trails and city rides.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Yoga Mat (Manduka)", "price": 70, "description": "Thick, non-slip mat for yoga or pilates.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Wilson Tennis Racket", "price": 130, "description": "Lightweight racket with high performance.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_CBLBUjLsxjafruK5OUGPsr3X-ffxQePXuQ"},
+{"name": "Hiking Backpack 50L", "price": 90, "description": "Durable backpack with multiple compartments.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+// 10 NEW
+{"name": "Adjustable Dumbbells", "price": 200, "description": "Selectable weight dumbbells pair.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Basketball (Spalding)", "price": 35, "description": "Official NBA street basketball.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Cycling Helmet", "price": 45, "description": "Safety helmet with ventilation.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Swim Goggles", "price": 15, "description": "Anti-fog swimming goggles.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Golf Club Set", "price": 300, "description": "Complete beginner golf set.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_CBLBUjLsxjafruK5OUGPsr3X-ffxQePXuQ"},
+{"name": "Camping Sleeping Bag", "price": 50, "description": "3-season warm sleeping bag.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Skateboard", "price": 60, "description": "Standard street skateboard.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Foam Roller", "price": 20, "description": "Deep tissue massage roller.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Running Water Bottle", "price": 12, "description": "Handheld hydration bottle.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTKgeRiXtu09YpF6r1Lgr7kH2JkKU8JLqB_RgIiio6YLPfy-tl_ZiuVMII"},
+{"name": "Baseball Glove", "price": 40, "description": "Leather baseball mitt.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_CBLBUjLsxjafruK5OUGPsr3X-ffxQePXuQ"}
+]
+},
+{
+"name": "Toys & Games",
+"products": [
+  // ===== TOYS & GAMES – BLOCK 4 =====
+{"name":"LEGO Creator Expert Roller Coaster","price":299,"description":"Advanced LEGO roller coaster set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy61"},
+{"name":"Barbie Dreamhouse Kitchen","price":129,"description":"Kitchen-themed dollhouse playset.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy62"},
+{"name":"Hot Wheels City Ultimate Garage","price":179,"description":"Multi-level garage for Hot Wheels cars.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy63"},
+{"name":"Fisher-Price Sit-to-Stand Walker","price":39,"description":"Activity walker for toddlers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy64"},
+{"name":"Melissa & Doug Magnetic Wooden Letters","price":19,"description":"Alphabet learning set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy65"},
+{"name":"Play-Doh Sweet Shoppe Set","price":29,"description":"Play-Doh set for pretend baking.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy66"},
+{"name":"UNO Dare Card Game","price":12,"description":"UNO variant with fun dares.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy67"},
+{"name":"Crayola Colored Pencils Set","price":15,"description":"Set of vibrant colored pencils.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy68"},
+{"name":"VTech KidiZoom Duo Camera","price":59,"description":"Dual-lens camera for kids.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy69"},
+{"name":"Paw Patrol Sea Patroller Vehicle","price":49,"description":"Sea rescue vehicle toy.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy70"},
+{"name":"Fujifilm Instax Mini Album","price":19,"description":"Photo album for instant pictures.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy71"},
+{"name":"LEGO Minecraft The Cave","price":59,"description":"Minecraft-themed LEGO set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy72"},
+{"name":"Spin Master Hatchimals Surprise Egg","price":12,"description":"Collectible surprise toy egg.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy73"},
+{"name":"Hasbro Operation Game","price":22,"description":"Classic skill and fun board game.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy74"},
+{"name":"Barbie Glam Camper","price":139,"description":"Luxury camper doll playset.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy75"},
+{"name":"Fisher-Price Dance & Groove Dinosaur","price":29,"description":"Interactive dancing dinosaur toy.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy76"},
+{"name":"LEGO Friends Heartlake Playground","price":49,"description":"Playground LEGO set with mini-dolls.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy77"},
+{"name":"NERF Ultra One Blaster","price":59,"description":"High-speed foam dart blaster.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy78"},
+{"name":"Melissa & Doug Wooden Kitchen Set","price":69,"description":"Classic wooden pretend kitchen for kids.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy79"},
+{"name":"LEGO City Police Chase","price":39,"description":"Police chase LEGO set for kids.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy80"},
+
+  // ===== TOYS & GAMES – BLOCK 3 =====
+{"name":"LEGO Technic Car Model","price":79,"description":"Advanced LEGO car building set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy41"},
+{"name":"Barbie Dreamplane Playset","price":149,"description":"Airplane-themed Barbie playset.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy42"},
+{"name":"Hot Wheels Super Ultimate Garage","price":179,"description":"Massive car playset with ramps and lifts.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy43"},
+{"name":"Fisher-Price Laugh & Learn Smart Stages Puppy","price":24,"description":"Interactive learning puppy toy.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy44"},
+{"name":"Melissa & Doug Wooden Dollhouse","price":79,"description":"Classic wooden dollhouse with furniture.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy45"},
+{"name":"Play-Doh Fun Factory","price":19,"description":"Play-Doh extruder set for fun shapes.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy46"},
+{"name":"UNO Flip Card Game","price":12,"description":"UNO variant with flip cards.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy47"},
+{"name":"Crayola Washable Paint Set","price":22,"description":"Complete washable paint kit.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy48"},
+{"name":"VTech Kidizoom Smartwatch","price":49,"description":"Interactive kids smartwatch with games.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy49"},
+{"name":"Paw Patrol Rescue Marshall Fire Truck","price":29,"description":"Marshall fire truck toy with action features.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy50"},
+{"name":"Fujifilm Instax Mini Camera Bundle","price":89,"description":"Camera kit with accessories for kids.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy51"},
+{"name":"LEGO Super Mario Adventures","price":59,"description":"Interactive LEGO Mario set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy52"},
+{"name":"Spin Master Hatchimals Colleggtibles 12-Pack","price":29,"description":"Collectible surprise eggs set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy53"},
+{"name":"Hasbro Guess Who? Game","price":14,"description":"Classic face-guessing board game.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy54"},
+{"name":"Barbie Color Reveal Doll","price":19,"description":"Doll with color-change feature.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy55"},
+{"name":"Fisher-Price Little People Zoo","price":34,"description":"Zoo playset with animal figures.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy56"},
+{"name":"LEGO Friends Olivia's Tree House","price":44,"description":"LEGO set with mini-dolls and treehouse.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy57"},
+{"name":"NERF Elite Disruptor Blaster","price":29,"description":"Compact foam dart blaster.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy58"},
+{"name":"Melissa & Doug Wooden Building Blocks","price":39,"description":"Classic educational wooden blocks set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy59"},
+{"name":"LEGO City Fire Station","price":69,"description":"Fire-themed LEGO set for kids.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy60"},
+
+  // ===== TOYS & GAMES – BLOCK 2 =====
+{"name":"LEGO City Police Station","price":89,"description":"Police-themed LEGO set for kids.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy21"},
+{"name":"Barbie Dream Camper","price":129,"description":"Doll camper van with accessories.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy22"},
+{"name":"Hot Wheels Track Builder Set","price":49,"description":"Customizable race track for cars.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy23"},
+{"name":"Fisher-Price Rock-a-Stack","price":15,"description":"Classic stacking toy for toddlers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy24"},
+{"name":"Melissa & Doug Farm Animal Set","price":29,"description":"Wooden farm animals and barn playset.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy25"},
+{"name":"Play-Doh Kitchen Creations","price":22,"description":"Play-Doh set for pretend cooking.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy26"},
+{"name":"UNO Attack Card Game","price":12,"description":"Fast-paced UNO variant with card launcher.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy27"},
+{"name":"Crayola Color Wonder Mess Free","price":19,"description":"Coloring markers that only appear on special paper.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy28"},
+{"name":"VTech Touch and Learn Activity Desk","price":69,"description":"Interactive learning desk for kids.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy29"},
+{"name":"Paw Patrol Lookout Tower Playset","price":79,"description":"Playset with lookout tower and figures.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy30"},
+{"name":"Fujifilm Instax Mini Film Pack","price":14,"description":"Instant camera film refill pack.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy31"},
+{"name":"LEGO Marvel Avengers Set","price":59,"description":"Superhero-themed LEGO set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy32"},
+{"name":"Spin Master PAW Patrol Rescue Racers","price":24,"description":"Mini vehicles for Paw Patrol play.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy33"},
+{"name":"Hasbro Twister Game","price":19,"description":"Classic body-movement party game.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy34"},
+{"name":"Barbie Dreamtopia Doll","price":14,"description":"Fantasy doll with colorful outfit.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy35"},
+{"name":"Fisher-Price Bounce and Spin Puppy","price":22,"description":"Interactive bouncing toy for toddlers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy36"},
+{"name":"LEGO Ninjago Spinjitzu Set","price":49,"description":"Ninjago-themed LEGO set for action play.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy37"},
+{"name":"NERF Rival Series Blaster","price":44,"description":"High-performance foam blaster for competitive play.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy38"},
+{"name":"Melissa & Doug Shape Sorting Cube","price":25,"description":"Classic educational shape sorting toy.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy39"},
+{"name":"LEGO Friends Olivia's House","price":34,"description":"LEGO set with mini-doll and house.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy40"},
+
+  // ===== TOYS & GAMES – BLOCK 1 =====
+{"name":"LEGO Classic Bricks and Eyes","price":29,"description":"Creative building blocks for kids.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy01"},
+{"name":"NERF N-Strike Elite Blaster","price":34,"description":"Foam dart shooting fun.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy02"},
+{"name":"Barbie Dreamhouse Dollhouse","price":199,"description":"Interactive dollhouse with furniture.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy03"},
+{"name":"Hot Wheels 50-Car Pack","price":69,"description":"Assorted die-cast toy cars.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy04"},
+{"name":"Fisher-Price Laugh & Learn Smart Stages","price":25,"description":"Educational interactive toy.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy05"},
+{"name":"Melissa & Doug Wooden Puzzles","price":19,"description":"Classic educational puzzles for kids.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy06"},
+{"name":"Play-Doh Modeling Compound 36-Pack","price":29,"description":"Colorful modeling clay for creativity.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy07"},
+{"name":"UNO Card Game","price":9,"description":"Classic family card game.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy08"},
+{"name":"Crayola Inspiration Art Case","price":24,"description":"Complete coloring set with 140 pieces.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy09"},
+{"name":"VTech KidiZoom Camera","price":59,"description":"Kid-friendly digital camera.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy10"},
+{"name":"Paw Patrol Ultimate Rescue Fire Truck","price":79,"description":"Interactive Paw Patrol playset.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy11"},
+{"name":"Fujifilm Instax Mini Instant Camera","price":69,"description":"Fun instant photo camera for kids.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy12"},
+{"name":"LEGO Star Wars The Mandalorian","price":49,"description":"Star Wars themed LEGO set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy13"},
+{"name":"Spin Master Hatchimals Colleggtibles","price":19,"description":"Surprise collectible toy eggs.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy14"},
+{"name":"Hasbro Monopoly Classic Game","price":22,"description":"Iconic board game for all ages.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy15"},
+{"name":"Barbie Fashion Doll","price":14,"description":"Fashion doll with accessories.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy16"},
+{"name":"Fisher-Price Little People Playset","price":29,"description":"Miniature playset with figures.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy17"},
+{"name":"LEGO Friends Heartlake City","price":34,"description":"LEGO set with characters and buildings.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy18"},
+{"name":"NERF Mega Elite Blaster","price":39,"description":"High-impact foam dart blaster.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy19"},
+{"name":"Melissa & Doug Wooden Train Set","price":49,"description":"Classic wooden train tracks and trains.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtoy20"},
+
+{"name": "LEGO Star Wars Set", "price": 80, "description": "Buildable spacecraft with minifigures.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "Barbie Dreamhouse", "price": 200, "description": "Large dollhouse with accessories.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "PlayStation 5 Console", "price": 499, "description": "Next-gen gaming console.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name": "Nintendo Switch OLED", "price": 349, "description": "Handheld and dockable console.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name": "Monopoly Board Game", "price": 20, "description": "Classic family game.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "Hot Wheels Track Set", "price": 40, "description": "Includes multiple loops and cars.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "Funko Pop Collectibles", "price": 15, "description": "Vinyl figures from popular franchises.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "NERF Elite Blaster", "price": 30, "description": "Foam dart blaster for kids and adults.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+// 10 NEW
+{"name": "RC Car 4x4", "price": 45, "description": "Off-road remote control car.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "Uno Card Game", "price": 8, "description": "Fun card game for families.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "Plush Teddy Bear", "price": 25, "description": "Soft huggable bear toy.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "Jigsaw Puzzle (1000pc)", "price": 18, "description": "Landscape puzzle for adults.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "Action Figure (Marvel)", "price": 22, "description": "Detailed superhero figure.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "Rubik's Cube", "price": 10, "description": "Classic 3x3 brain teaser.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "Water Gun Super Soaker", "price": 20, "description": "High capacity water blaster.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"},
+{"name": "Xbox Series X", "price": 499, "description": "Powerful 4K gaming console.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"},
+{"name": "Drone for Kids", "price": 40, "description": "Easy to fly mini drone.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkpyf11NuO9Q9l8dD0T_57jTMV2_Mn31y6hQ"},
+{"name": "Play-Doh Set", "price": 15, "description": "Modeling compound variety pack.", "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTA-afrZc7zmGXsPg6mMzCA3Rrkg5jgNH4DN9zOzrrdk1jJj42EFPUKffeTIzKM-Jh5fIYhMMWnXyQqMyccjNhf6UynAC0fYrsshypWaylm"}
+]
+},
+{
+"name": "Automotive",
+"products": [
+  // ===== AUTOMOTIVE – BLOCK 4 =====
+{"name":"Magnetic Car Phone Mount Dashboard","price":24,"description":"Strong magnetic phone holder.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto61"},
+{"name":"Car Blind Spot Detector","price":79,"description":"Assists with lane changes safely.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto62"},
+{"name":"LED Car Interior Light Strip","price":29,"description":"Customizable interior lighting.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto63"},
+{"name":"Car Tire Inflator Compressor","price":49,"description":"Portable air pump for tires.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto64"},
+{"name":"Car Vacuum Wet & Dry Cleaner","price":69,"description":"High power handheld vacuum.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto65"},
+{"name":"Universal Dashboard Camera","price":79,"description":"Record driving with front camera.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto66"},
+{"name":"Car Seat Back Organizer","price":24,"description":"Keep essentials organized behind seat.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto67"},
+{"name":"LED Fog Lights Pair","price":49,"description":"High brightness fog lamps for cars.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto68"},
+{"name":"Portable Car Heater","price":39,"description":"Compact heater for winter trips.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto69"},
+{"name":"Car Battery Booster Pack","price":99,"description":"Jump start your car anytime.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto70"},
+{"name":"Windshield Snow Cover","price":29,"description":"Protects from snow and frost.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto71"},
+{"name":"Car Roof Rack Basket","price":129,"description":"Extra cargo storage for long trips.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto72"},
+{"name":"Leather Car Seat Covers","price":79,"description":"Luxury protection and style.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto73"},
+{"name":"Car Tire Pressure Monitor","price":49,"description":"Digital TPMS for safety.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto74"},
+{"name":"Car Jump Starter with Flashlight","price":119,"description":"Emergency tool kit for cars.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto75"},
+{"name":"Car Steering Wheel Cover Leather","price":29,"description":"Soft leather with anti-slip design.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto76"},
+{"name":"Portable Car Fridge Cooler","price":99,"description":"Keep drinks and snacks cool.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto77"},
+{"name":"Car Rearview Mirror Dash Cam","price":79,"description":"Mirror with camera recording.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto78"},
+{"name":"Magnetic Car Phone Holder Vent","price":19,"description":"Quick-mount magnetic phone holder.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto79"},
+{"name":"All-Weather Car Floor Mats","price":49,"description":"Durable mats for all weather.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto80"},
+
+  // ===== AUTOMOTIVE – BLOCK 3 =====
+{"name":"Portable Car Heater Fan","price":39,"description":"Quick warm-up for winter driving.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto41"},
+{"name":"Car Vacuum Cleaner Wet/Dry","price":69,"description":"Strong suction handheld vacuum.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto42"},
+{"name":"Universal Car Charger","price":14,"description":"Dual USB car charger adapter.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto43"},
+{"name":"Rear View Mirror Dash Cam","price":79,"description":"Mirror with built-in front/back camera.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto44"},
+{"name":"LED Fog Lights","price":49,"description":"Upgrade fog lights with high brightness.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto45"},
+{"name":"Car Seat Cushion Memory Foam","price":29,"description":"Comfortable memory foam seat pad.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto46"},
+{"name":"Windshield Wiper Blades","price":24,"description":"High-quality all-weather wipers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto47"},
+{"name":"Car Key Finder Tracker","price":34,"description":"Bluetooth tracker for keys and gadgets.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto48"},
+{"name":"Car Battery Charger","price":59,"description":"Portable charger for car batteries.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto49"},
+{"name":"Roof Cargo Box","price":199,"description":"Extra storage for long trips.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto50"},
+{"name":"Car Cleaning Kit","price":39,"description":"Complete wash and polish set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto51"},
+{"name":"Tire Repair Kit","price":29,"description":"Portable kit for quick fixes.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto52"},
+{"name":"Car Air Freshener Set","price":19,"description":"Pack of scent diffusers for car.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto53"},
+{"name":"Bluetooth FM Transmitter","price":24,"description":"Wireless music and calls via FM.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto54"},
+{"name":"Leather Steering Wheel Cover","price":29,"description":"Luxury feel and better grip.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto55"},
+{"name":"Car Roof Basket","price":99,"description":"Heavy-duty steel roof basket for storage.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto56"},
+{"name":"Blind Spot Mirrors","price":14,"description":"Additional mirrors for safer driving.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto57"},
+{"name":"Car Seat Headrest Hooks","price":12,"description":"Hang bags and accessories easily.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto58"},
+{"name":"LED License Plate Lights","price":19,"description":"Stylish lighting for plates.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto59"},
+{"name":"Portable Jump Starter Power Bank","price":129,"description":"Multi-purpose car jump starter and power bank.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto60"},
+
+  // ===== AUTOMOTIVE – BLOCK 2 =====
+{"name":"Car Phone Mount","price":19,"description":"Universal dashboard phone holder.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto21"},
+{"name":"LED Headlight Bulbs","price":34,"description":"High brightness LED replacement bulbs.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto22"},
+{"name":"Car Vacuum Cleaner","price":49,"description":"Portable handheld vacuum for vehicles.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto23"},
+{"name":"Seat Covers Full Set","price":79,"description":"Universal car seat cover set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto24"},
+{"name":"Steering Wheel Cover","price":14,"description":"Anti-slip leather steering cover.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto25"},
+{"name":"Car Air Purifier","price":29,"description":"Removes dust and odors inside car.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto26"},
+{"name":"Dash Cam Full HD","price":69,"description":"Front camera with night vision.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto27"},
+{"name":"Car Jump Starter","price":99,"description":"Portable emergency jump starter.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto28"},
+{"name":"Tire Pressure Gauge","price":12,"description":"Digital tire pressure checker.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto29"},
+{"name":"Car Floor Mats","price":49,"description":"All-weather rubber mats for all cars.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto30"},
+{"name":"Windshield Sun Shade","price":19,"description":"Protects car interior from sun.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto31"},
+{"name":"Bluetooth Car Adapter","price":29,"description":"Wireless music and hands-free calls.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto32"},
+{"name":"Car Seat Organizer","price":24,"description":"Keeps car essentials tidy and handy.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto33"},
+{"name":"LED Interior Lights Kit","price":34,"description":"Multicolor LED strip lighting for interior.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto34"},
+{"name":"Car Roof Rack","price":129,"description":"Extra storage for luggage and gear.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto35"},
+{"name":"Car Cover Full Protection","price":79,"description":"Protects car from dust and rain.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto36"},
+{"name":"Portable Tire Inflator","price":49,"description":"Compact air compressor for tires.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto37"},
+{"name":"Magnetic Car Phone Holder","price":19,"description":"Quick-mount phone holder for dashboard.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto38"},
+{"name":"Car Trunk Organizer","price":34,"description":"Keeps your trunk clean and organized.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto39"},
+{"name":"Car Escape Tool","price":14,"description":"Emergency hammer and seatbelt cutter.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRauto40"},
+
+{"name": "Car Phone Mount", "price": 15, "description": "Adjustable dashboard mount.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Meguiar’s Car Wax", "price": 25, "description": "Protects paint and adds shine.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Seat Covers (Universal Fit)", "price": 40, "description": "Protect and style your seats.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Dash Cam 1080p", "price": 60, "description": "Records front view while driving.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Portable Car Vacuum", "price": 30, "description": "Compact vacuum for interior cleaning.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "LED Headlight Bulbs", "price": 35, "description": "Brighter and energy-efficient headlights.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Tire Inflator Pump", "price": 45, "description": "Portable air pump for emergencies.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Car Jump Starter", "price": 70, "description": "Compact battery pack to jump-start vehicles.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+// 10 NEW
+{"name": "Windshield Wipers", "price": 20, "description": "All-weather silicone wiper blades.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Motor Oil 5W-30", "price": 35, "description": "Full synthetic engine oil 5qt.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Car Air Freshener", "price": 5, "description": "Long lasting scent vent clip.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Steering Wheel Cover", "price": 15, "description": "Leather grip steering cover.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Microfiber Cloths", "price": 10, "description": "Pack of 12 cleaning towels.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Car Floor Mats", "price": 50, "description": "All-weather rubber floor mats.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Trunk Organizer", "price": 25, "description": "Collapsible storage container.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Tire Pressure Gauge", "price": 8, "description": "Digital tire pressure reader.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Car Wash Sponge", "price": 5, "description": "Large soft washing sponge.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"},
+{"name": "Emergency Road Kit", "price": 40, "description": "Cables, flashlight, and first aid.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTx-usPWA5LP7ikiDUXA7gTYp3pCt_iyhdrrEDXL63GRb3bEGDal--Dt8LbFUGw"}
+]
+},
+{
+"name": "Books & Stationery",
+"products": [
+  {"name":"Notebook","price":5,"description":"Lined paper notebook.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks1"},
+{"name":"Ballpoint Pen","price":2,"description":"Smooth writing pen.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks2"},
+{"name":"Gel Pen Set","price":10,"description":"Colorful gel pens.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks3"},
+{"name":"Highlighter Set","price":8,"description":"Bright study highlighters.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks4"},
+{"name":"Planner","price":12,"description":"Organize your week.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks5"},
+{"name":"Sketchbook","price":15,"description":"Blank pages for drawing.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks6"},
+{"name":"Sticky Notes","price":4,"description":"Reminders & bookmarks.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks7"},
+{"name":"Ruler","price":3,"description":"Standard 30cm ruler.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks8"},
+{"name":"Eraser","price":1,"description":"Soft pencil eraser.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks9"},
+{"name":"Pencil Set","price":5,"description":"Graphite pencils set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks10"},
+{"name":"Colored Pencils","price":10,"description":"Art coloring pencils.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks11"},
+{"name":"Marker Set","price":12,"description":"Permanent markers set.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks12"},
+{"name":"Glue Stick","price":3,"description":"Safe adhesive stick.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks13"},
+{"name":"Scissors","price":5,"description":"Sharp paper scissors.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks14"},
+{"name":"Desk Organizer","price":20,"description":"Keep your stationery neat.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks15"},
+{"name":"Calculator","price":15,"description":"Scientific calculator.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks16"},
+{"name":"Notebook Binder","price":18,"description":"Holds loose-leaf papers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks17"},
+{"name":"Index Cards","price":6,"description":"For studying & notes.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks18"},
+{"name":"Sticky Tabs","price":4,"description":"Colorful page markers.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks19"},
+{"name":"Drawing Pens","price":12,"description":"Fine line art pens.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks20"},
+{"name":"Notebook Set","price":15,"description":"Pack of 3 notebooks.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks21"},
+{"name":"Watercolor Set","price":20,"description":"Watercolor paint kit.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks22"},
+{"name":"Brush Set","price":10,"description":"Painting brushes kit.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks23"},
+{"name":"Desk Lamp","price":25,"description":"LED adjustable lamp.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks24"},
+{"name":"Notebook Backpack","price":30,"description":"Carry books & stationery.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks25"},
+{"name":"Paper Clips","price":2,"description":"Metal binder clips.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks26"},
+{"name":"Stapler","price":8,"description":"Standard office stapler.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks27"},
+{"name":"Correction Tape","price":3,"description":"Erase mistakes neatly.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks28"},
+{"name":"Binder Clips","price":5,"description":"Hold papers firmly.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks29"},
+{"name":"Notebook Divider","price":4,"description":"Separate subjects easily.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcBooks30"},
+
+  // ===== BOOKS & STATIONERY – BLOCK 4 =====
+{"name":"The Great Gatsby","price":10,"description":"Classic novel by F. Scott Fitzgerald.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name":"1984 by George Orwell","price":12,"description":"Dystopian novel about totalitarianism.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name":"To Kill a Mockingbird","price":14,"description":"Novel addressing racial injustice.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name":"The Catcher in the Rye","price":11,"description":"Story of teenage angst and alienation.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name":"Pride and Prejudice","price":13,"description":"Romantic novel by Jane Austen.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name":"The Hobbit","price":16,"description":"Fantasy novel by J.R.R. Tolkien.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name":"Fahrenheit 451","price":12,"description":"Dystopian novel about book burning.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name":"The Lord of the Rings","price":30,"description":"Epic fantasy trilogy.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name":"Jane Eyre","price":14,"description":"Gothic novel by Charlotte Brontë.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name":"Wuthering Heights","price":15,"description":"Tragic love story by Emily Brontë.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+
+  // ===== BOOKS & STATIONERY – BLOCK 3 =====
+{"name": "Atomic Habits (James Clear)", "price": 15, "description": "Guide to building better habits.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name": "Harry Potter Box Set", "price": 80, "description": "Complete collection of the series.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name": "Moleskine Notebook", "price": 20, "description": "Premium journal for writing.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+{"name": "Gel Pen Set (12 pcs)", "price": 10, "description": "Smooth-writing colored pens.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+{"name": "Desk Organizer", "price": 25, "description": "Keep workspace neat.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+{"name": "Sketching Pencils Set", "price": 15, "description": "Ideal for artists and students.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+{"name": "Planner 2025", "price": 20, "description": "Daily and weekly planner for organization.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+{"name": "Sticky Notes Pack", "price": 8, "description": "Colorful sticky notes for reminders.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+// 10 NEW
+{"name": "The Alchemist", "price": 14, "description": "A fable about following your dream.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name": "Rich Dad Poor Dad", "price": 16, "description": "Personal finance classic.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name": "Thinking, Fast and Slow", "price": 18, "description": "Book on psychology and behavioral economics.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtwqP8qIfqTgF0SPCNxlQHvuUQ8PGToY2bimqaycgZvFy-FnXu7eydbho"},
+{"name": "Mechanical Pencil Set", "price": 12, "description": "High precision writing pencils.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+{"name": "Highlighter Pack", "price": 6, "description": "Neon colors for marking text.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+{"name": "Scientific Calculator", "price": 15, "description": "Standard calculator for students.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+{"name": "Stapler with Staples", "price": 10, "description": "Durable office stapler.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+{"name": "Scissors", "price": 8, "description": "Sharp stainless steel scissors.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+{"name": "Whiteboard Markers", "price": 12, "description": "Dry erase markers set.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"},
+{"name": "A4 Printer Paper", "price": 8, "description": "500 sheets multipurpose paper.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRYOOp_3MZ9wP5kcPUEpdJ0w6qwBVTXHoCZXw"}
+]
+},
+{
+"name": "Groceries & Food",
+"products": [
+  {"name":"Rice","price":20,"description":"Premium long grain rice.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood1"},
+{"name":"Pasta","price":15,"description":"Italian spaghetti pasta.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood2"},
+{"name":"Olive Oil","price":25,"description":"Extra virgin olive oil.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood3"},
+{"name":"Tomato Sauce","price":10,"description":"Rich tomato sauce.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood4"},
+{"name":"Canned Beans","price":8,"description":"Protein-rich beans.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood5"},
+{"name":"Sugar","price":5,"description":"Refined granulated sugar.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood6"},
+{"name":"Salt","price":2,"description":"Iodized table salt.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood7"},
+{"name":"Black Pepper","price":3,"description":"Ground black pepper.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood8"},
+{"name":"Coffee","price":15,"description":"Ground roasted coffee.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood9"},
+{"name":"Tea Bags","price":8,"description":"Assorted tea bags.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood10"},
+{"name":"Milk","price":5,"description":"Fresh whole milk.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood11"},
+{"name":"Cheese","price":12,"description":"Cheddar cheese block.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood12"},
+{"name":"Butter","price":10,"description":"Unsalted creamy butter.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood13"},
+{"name":"Eggs","price":6,"description":"Free-range chicken eggs.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood14"},
+{"name":"Yogurt","price":5,"description":"Natural plain yogurt.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood15"},
+{"name":"Bread","price":4,"description":"Whole wheat bread loaf.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood16"},
+{"name":"Cereal","price":10,"description":"Breakfast cereal box.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood17"},
+{"name":"Honey","price":12,"description":"Natural bee honey.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood18"},
+{"name":"Jam","price":8,"description":"Strawberry fruit jam.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood19"},
+{"name":"Peanut Butter","price":10,"description":"Creamy peanut spread.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood20"},
+{"name":"Frozen Vegetables","price":12,"description":"Mixed frozen veggies.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood21"},
+{"name":"Frozen Chicken","price":20,"description":"Fresh frozen chicken.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood22"},
+{"name":"Cooking Oil","price":15,"description":"Vegetable cooking oil.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood23"},
+{"name":"Vinegar","price":5,"description":"Distilled white vinegar.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood24"},
+{"name":"Canned Tuna","price":12,"description":"Chunk light tuna.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood25"},
+{"name":"Snack Chips","price":5,"description":"Crispy potato chips.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood26"},
+{"name":"Chocolate Bar","price":3,"description":"Milk chocolate snack.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood27"},
+{"name":"Cookies","price":4,"description":"Sweet baked cookies.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood28"},
+{"name":"Nuts Mix","price":12,"description":"Healthy nut assortment.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood29"},
+{"name":"Fruit Juice","price":6,"description":"Freshly squeezed juice.","image":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcFood30"},
+
+{"name": "Organic Olive Oil (500ml)", "price": 12, "description": "Cold-pressed premium oil.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Lindt Chocolate Box (200g)", "price": 10, "description": "Premium Swiss chocolate.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Starbucks Ground Coffee (250g)", "price": 15, "description": "Rich aroma coffee beans.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Quaker Oats (1kg)", "price": 6, "description": "Healthy breakfast option.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Nature’s Path Granola", "price": 8, "description": "Gluten-free, organic cereal.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Mixed Nuts Pack (500g)", "price": 12, "description": "Healthy snack assortment.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Instant Ramen (Pack of 5)", "price": 5, "description": "Quick and easy meals.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Protein Powder Vanilla (1kg)", "price": 35, "description": "High-quality whey protein for fitness.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+// 10 NEW
+{"name": "Basmati Rice (5kg)", "price": 20, "description": "Long grain aromatic rice.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Pasta Spaghetti (500g)", "price": 3, "description": "Italian durum wheat pasta.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Tomato Sauce", "price": 4, "description": "Classic basil tomato sauce.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Green Tea Bags", "price": 5, "description": "Pack of 50 organic green tea bags.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Peanut Butter", "price": 6, "description": "Creamy natural peanut butter.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Honey (500g)", "price": 12, "description": "Pure raw wildflower honey.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Canned Tuna (4 pack)", "price": 8, "description": "Tuna in spring water.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"},
+{"name": "Orange Juice (1L)", "price": 4, "description": "100% pure squeezed orange juice.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG-uFh37HuCPMq0-oMy4UeVl8D7_Zx3_LH4g"},
+{"name": "Apple Pack (1kg)", "price": 5, "description": "Fresh crisp red apples.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQG-uFh37HuCPMq0-oMy4UeVl8D7_Zx3_LH4g"},
+{"name": "Potato Chips", "price": 3, "description": "Salted crispy potato chips.", "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSt4Rll5gtbznbHxrVISjFUUvdKtJBF2WjILg"}
+]
+}
+]
+};
+
+// FLATTEN PRODUCTS & POPULATE DROPDOWN WITH IMAGE FALLBACK
+const categorySelect = document.getElementById('categorySelect');
+let allProducts = [];
+data.categories.forEach(cat => {
+cat.products.forEach(prod => {
+prod.category = cat.name;
+if(!prod.image) prod.image = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQhoLKwkOQ5yyh96aVxXOh2M1wUY0GYezUqTg"; // Fallback generic Google image
+allProducts.push(prod);
+});
+const option = document.createElement('option');
+option.value = cat.name;
+option.innerText = cat.name;
+categorySelect.appendChild(option);
+});
+
+const productGrid = document.getElementById('product-grid');
+
+// HELPER: Generate Dynamic "Search Result" Image URL
+// Uses Bing Thumbnail API to simulate "Top Google Image" result by name without API keys.
+// Wrapped in images.weserv.nl proxy for frontend safety and caching as requested.
+function getDynamicImageUrl(productName) {
+const query = encodeURIComponent(productName);
+// The 'c=7' param ensures the image fills the dimensions (smart crop).
+const searchUrl = `https://tse2.mm.bing.net/th?q=${query}&w=500&h=500&c=7&rs=1&p=0`;
+// Return proxied URL
+return `https://images.weserv.nl/?url=${encodeURIComponent(searchUrl)}`;
+}
+
+function renderProducts(list) {
+productGrid.innerHTML = "";
+if (list.length === 0) {
+productGrid.innerHTML = `<div class="col-span-full text-center text-gray-400 text-xl mt-12 animate__animated animate__fadeIn">Can’t find what you’re searching for? <br> Contact the vendor on WhatsApp!</div>`;
+return;
+}
+list.forEach((product) => {
+const card = document.createElement('div');
+card.className = "bg-gray-800 rounded-lg overflow-hidden shadow-lg transform hover:-translate-y-2 hover:shadow-2xl transition cursor-pointer relative animate__animated animate__fadeIn";
+card.setAttribute("data-aos", "fade-up");
+// Pass the name to identify the product
+card.onclick = () => openModalByName(product.name);
+
+// DYNAMIC IMAGE GENERATION ON RENDER
+const dynamicImage = getDynamicImageUrl(product.name);
+
+card.innerHTML = `
+<div class="h-48 bg-gray-700 flex items-center justify-center text-gray-400 font-bold relative overflow-hidden">
+<img src="${dynamicImage}" alt="${product.name}" class="h-full w-full object-cover hover:scale-110 transition duration-500">
+<span class="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-sm font-bold">$${product.price}</span>
+</div>
+<div class="p-4">
+<h4 class="text-lg font-semibold mb-1 truncate">${product.name}</h4>
+<span class="inline-block bg-green-500 text-white px-2 py-1 rounded-full text-xs">FREE DELIVERY</span>
+</div>
+`;
+productGrid.appendChild(card);
+});
+}
+
+renderProducts(allProducts);
+
+function filterCategory(category){
+if(category==="All") renderProducts(allProducts);
+else renderProducts(allProducts.filter(p=>p.category===category));
+}
+
+function filterProducts(){
+const term = document.getElementById('search').value.toLowerCase();
+renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(term) || p.category.toLowerCase().includes(term)));
+}
+
+categorySelect.addEventListener('change', ()=> filterCategory(categorySelect.value));
+
+// MODAL FUNCTIONS
+
+function openModalByName(name){
+const product = allProducts.find(p => p.name === name);
+if(!product) return;
+
+// Unique key for comments based on product name
+const commentsKey = `comments_${name.replace(/\s+/g, '_')}`;
+const savedComments = JSON.parse(localStorage.getItem(commentsKey)) || [];
+
+// DYNAMIC IMAGE GENERATION FOR MODAL
+const dynamicImage = getDynamicImageUrl(product.name);
+
+document.getElementById('modal-content').innerHTML = `
+<div class="flex flex-col md:flex-row gap-6">
+<img src="${dynamicImage}" alt="${product.name}" class="w-full md:w-1/2 h-64 object-cover rounded-lg shadow-md">
+<div class="flex-1">
+<h2 class="text-2xl font-bold mb-2">${product.name}</h2>
+<p class="text-green-400 font-bold mb-4 text-xl">$${product.price}</p>
+<p class="mb-4 text-gray-300 text-sm leading-relaxed">${product.description}</p>
+<div class="mb-4"><span class="text-yellow-400">★★★★★</span> <span class="text-gray-500 text-xs">(5.0)</span></div>
+<div class="mb-4 border-t border-gray-700 pt-4">
+<h3 class="font-semibold mb-2 text-sm uppercase tracking-wide text-gray-400">Customer Comments</h3>
+<div id="comments-list" class="mb-3 max-h-32 overflow-y-auto bg-gray-900 p-2 rounded border border-gray-700">
+${savedComments.length ? savedComments.map(c=>`<p class="mb-1 text-xs text-gray-300 border-b border-gray-800 pb-1"><span class="text-green-500 font-bold">User:</span> ${c}</p>`).join('') : '<p class="text-xs text-gray-500 italic">No comments yet.</p>'}
+</div>
+<div class="flex gap-2">
+<input type="text" id="comment-input" placeholder="Ask a question..." class="flex-1 p-2 rounded bg-gray-700 text-white text-sm focus:ring-2 focus:ring-green-500 focus:outline-none w-full">
+<button id="comment-btn" class="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded font-bold text-sm transition">Post</button>
+</div>
+</div>
+<a href="https://wa.me/16262067150?text=I'm interested in ${encodeURIComponent(product.name)}" target="_blank" class="block w-full text-center bg-green-500 hover:bg-green-600 px-4 py-3 rounded-lg font-bold transition flex justify-center items-center gap-2">
+<span>💬</span> Buy via WhatsApp
+</a>
+</div>
+</div>
+`;
+
+document.getElementById('comment-btn').onclick = () => {
+const commentInput = document.getElementById('comment-input');
+if(commentInput.value.trim() !== ""){
+savedComments.push(commentInput.value.trim());
+localStorage.setItem(commentsKey, JSON.stringify(savedComments));
+// Re-render comments part
+const listHtml = savedComments.map(c=>`<p class="mb-1 text-xs text-gray-300 border-b border-gray-800 pb-1"><span class="text-green-500 font-bold">User:</span> ${c}</p>`).join('');
+document.getElementById('comments-list').innerHTML = listHtml;
+commentInput.value = "";
+}
+};
+
+document.getElementById('product-modal').classList.remove('hidden');
+}
+
+function closeModal(){
+document.getElementById('product-modal').classList.add('hidden');
+}
+
+// Initial Render
+renderProducts(allProducts);
+
+</script>
+
+</body>
+</html>
+```
